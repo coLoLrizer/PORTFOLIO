@@ -7,4 +7,8 @@ A collection of my game design work across personal projects, prototypes, and sy
   A breakdown of how a single spell idea grew through three different design environments:  
   *fantasy → prototype → MMO-ready mechanic.*
 
+- **Crimson Witch — Boss Encounter Design**  
+  A full boss fight built around potion-based territory control, escalating phases, and “player-like” AI decisions.  
+  *space denial → readable telegraphs → reward for adaptation under chaos.*
+
 More sections will be added as I publish additional design documents.
