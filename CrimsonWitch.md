@@ -172,17 +172,21 @@ Each potion has two modes:
 
 - If a melee player closes the gap:
   - Uses a short **staff combo** (1–3 hits) with light knockback and brief stagger.
-  - If the player stays close after the combo:
+  - If the player stays close or if she drops a hazard (e.g., Poison) at her feet:
     - She opens a **short-range portal** and teleports to the opposite side of the arena.
-- Design intent: reward gap-closing and aggression, but force the player to stay mobile and react.
+- **Design Intent & Uptime:**
+  - The teleport is not just an escape tool; it is a **reset mechanic**.
+  - If she drops poison at her feet, staying there would force the melee player to wait 10+ seconds (killing the pacing).
+  - By teleporting, she pulls the fight to a clean area, ensuring the player maintains **combat uptime**.
 
 ### 6.3 Potion Targeting
 
 - She rarely throws directly at the player’s feet.
-- Instead:
-  - Aims **slightly ahead** of the player’s movement direction.
-  - Tries to cut off escape paths or “favorite” movement patterns.
-- This keeps the player in motion and encourages real dodging, not just circle-strafing.
+- Instead, uses **Predictive AI**:
+  - Calculates the player's velocity and trajectory.
+  - Aims **slightly ahead** of the player’s movement direction (intercept course).
+  - Tries to cut off escape paths or "favorite" movement patterns.
+- This keeps the player in motion and punishes predictable circle-strafing.
 
 ### 6.4 Territory Control
 
@@ -249,14 +253,15 @@ Each potion has two modes:
 
 ### 8.1 Death Animation
 
-- She desperately tries to plant the cauldron and start “one more brew”.
-- Trips, spilling the cauldron over herself.
-- Bottles crash; liquids soak her cloak.
-- She dissolves into crimson smoke; only:
-  - Cloak
-  - Staff
-  - Satchel / loot  
-  remain on the floor.
+- **The Failed Swing:**
+  - At 0 HP, she attempts to swing the cauldron from her back for one last attack.
+  - Due to exhaustion, she lacks the centrifugal force to complete the arc. The cauldron tips mid-swing, pouring the raw alchemical base directly **over her shoulders and head**.
+- **Dissolution:**
+  - She dissolves almost instantly into crimson smoke under the torrent of the base liquid. The cauldron clatters to the floor.
+- **The Vials (Loot Mechanics):**
+  - The floating potion vials (representing active phases) remain suspended for a brief moment after she vanishes.
+  - **Gravity kicks in:** The vials fall onto the remaining **Cloak**, shattering on impact.
+  - **Visual Feedback:** The colored fluids from the shattered vials soak into the fabric, visually confirming which elemental buffs the dropped item has acquired.
 
 ### 8.2 Rewards (Concept)
 
