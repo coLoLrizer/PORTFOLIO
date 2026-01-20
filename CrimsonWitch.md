@@ -78,7 +78,7 @@ The Crimson Witch is an older, alchemy-obsessed mage who fights almost entirely 
 - **Phase 1 — Introduction**
   - 3 potions per cycle.
   - Simple patterns, slower usage.
-  - Paralyzing shockwave at the end of each brew cycle.
+  - Paralyzing shockwave at the start of each brew cycle.
 - **Phase 2 — Escalation**
   - 4 potions per cycle.
   - Faster usage, more overlapping hazards.
