@@ -73,12 +73,12 @@ CONF = {
     'BOSS_HP': 1500,
     'ORBIT_RADIUS': 10,
     'BOSS_SPEED': 0.006,
-    'BLINK_RANGE': 3.5,
+    'BLINK_RANGE': 3.0,
     'BLINK_CD': 1800,
-    'BOSS_DRINK_HEAL': 400,
+    'BOSS_DRINK_HEAL': 300,
     
     # Комбо
-    'COMBO_RANGE': 3.5,
+    'COMBO_RANGE': 3.0,
     'COMBO_NEARBY_TIME': 150,
     'COMBO_CD': 300,
     'COMBO_WINDUP': 35,
