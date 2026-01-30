@@ -22,6 +22,55 @@ The Crimson Witch is an older, alchemy-obsessed mage who fights almost entirely 
   - **Potion identity:** each potion is readable and has a clear behavior.
   - **Player-like thinking:** the boss makes decisions similar to a cautious player (buff, heal, reposition, deny space).
 
+## 2.1 Systemic World Role & Economy Impact
+
+The Crimson Witch is not only a boss encounter, but a **systemic pillar of the game world’s economy and progression**.
+
+### Alchemical Monopoly
+- The Witch is implied to be the **primary source** of rare and unstable potion formulas in the world:
+  - Shadow Potions
+  - Holy Potions
+  - Aether Potions
+  These potions do not naturally exist at scale — they are byproducts of her ongoing experiments.
+
+### World-State Before the Encounter
+- NPC alchemists and merchants sell rare potions:
+  - In **limited quantities**
+  - At **steadily increasing prices**
+  Ambient dialogue and shop behavior subtly hint at supply issues:
+  - "Shipments are smaller than they used to be."
+  - "The source stopped responding."
+- This creates a **soft narrative pressure** without explicit quest markers.
+
+### Discovery & Player Agency
+- The Witch’s laboratory is **not mandatory content**:
+  - No hard quest requirement.
+  - Found by exploration, environmental clues, or player curiosity.
+  Discovering her explains the potion scarcity **retroactively**, turning world inconsistencies into narrative payoff.
+
+### World-State After Defeat
+- After killing the Crimson Witch:
+  - Her laboratory becomes a **functional hub**.
+  - NPC alchemists move in and begin selling rare potions:
+    - At **lower and stable prices**
+    - With predictable restock behavior.
+- The player sees a **direct, mechanical consequence** of the boss’s death reflected across the world.
+
+### The Crimson Flower — Moral Replay Loop
+- After the first defeat, a **Crimson Flower** grows in the center of the arena.
+- The flower allows the player to:
+  - **Re-summon the Witch** using alchemical materials.
+
+### Design Intent
+- The Witch embodies the idea that:
+  > *Powerful systems have consequences beyond combat.*
+- Her existence links:
+  - Boss design
+  - World economy
+  - Player choice
+  - Replayability  
+  into a single closed loop.
+
 ---
 
 ## 3. Visual Identity & Arena
