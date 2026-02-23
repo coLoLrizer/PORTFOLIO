@@ -10,6 +10,8 @@
 The Crimson Witch is an older, alchemy-obsessed mage who fights almost entirely through potions. She controls the arena by spreading corruption, creating hazards, and using mobility tools to punish players who try to stay still or play too close for too long.
 
 ---
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/12ea6f8b-b177-40ce-a20e-1009247e6e58" />
+
 
 ## 2. Role in the Game
 
