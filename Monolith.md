@@ -6,6 +6,8 @@
 **Genre:** Action / Top-down combat  
 **Core fantasy:** A massive stone bound to the player by a chain, behaving like a controlled yoyo — never breaking flow, never invading camera space, always choosing the most powerful-looking trajectory.
 
+![Def](https://github.com/user-attachments/assets/e5fcec1a-77a2-425a-a4df-8c76903bbb63)
+
 ### The Core Problem
 
 Designing a throwable, tethered object that:
