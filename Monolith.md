@@ -14,7 +14,6 @@ Designing a throwable, tethered object that:
 
 - Always orbits **around** the player (never through them)
 - Always chooses the **largest, most expressive arc**
-- Respects a **hard tether length**
 - Allows **recasting at any cursor position**, including directly under the player
 - Remains readable and stable under **camera rotation**
 - Never breaks player spatial intuition
@@ -30,23 +29,14 @@ This sounds trivial until you actually try to implement it.
 The earliest version split the world into **two halves** relative to the player:
 
 - Cursor is either on the **left** or **right** side
-- Monolith chooses:
-  - One side → orbit clockwise
-  - Other side → orbit counter-clockwise
+- The monolith flies out from two precisely defined points perpendicular to the screen division, exactly in the center of the circle. (180 degrees)
+- Monolith always chooses different side to fly out and the same side to get onto orbit.
 
 ### Why It Failed
 
-This approach worked **only** when:
+This approach worked **only** when player gase the same side with **Monolith** (180 degrees)
 
-- Camera was static
-- Player faced a consistent direction
-- Cursor movement was slow and predictable
-
-The moment the camera rotated or the cursor crossed the forward axis:
-
-- Orbit direction would flip unexpectedly
-- The monolith could snap to a shorter arc
-- Visual intent broke completely
+The moment the camera rotated behind **Monolith** the pattern brokes (the monolith began to make a V-shaped movement)
 
 **Key failure:**  
 Binary space division is not rotationally invariant.
@@ -74,10 +64,7 @@ At this point the goal became very explicit:
 
 > **The Monolith must always travel along the largest possible arc around the player, regardless of cursor position.**
 
-Even if:
-- The cursor is under the player’s feet
-- The cursor is inside the orbit
-- The player spins the camera mid-action
+Even if The player spins the camera mid-action
 
 ---
 
@@ -85,8 +72,8 @@ Even if:
 
 ### Why Angles Alone Are Not Enough
 
-Angle comparisons tell you *where* things are —  
-but they do **not** tell you *how to get there*.
+The previously calculated angles result in very rough behavior; the monolith begins to slow down when entering orbit, 
+shakes and accelerates directly in orbit, which creates a very negative impression of the ability.
 
 To preserve motion quality, the system must reason in **tangents**, not straight lines.
 
@@ -100,7 +87,7 @@ At any moment, the system computes **two independent tangent pairs**:
 Tangents from the **current monolith position** to the stable orbit.
 
 ### B) Cursor → Orbit Tangents  
-Tangents from the **cursor position** to a **phantom adaptive orbit**.
+Tangents from the **cursor position** to the same orbit.
 
 These tangents define:
 - Valid **entry points** into orbit
@@ -126,11 +113,13 @@ If the cursor is inside the orbit radius:
 **Result:**  
 Even if the cursor is directly under the player, the monolith still performs a full yoyo-style arc around them.
 
+(For context, this is necessary so that Monolith's ability gains damage from the archetype's passive ability while flying.)
+
 ---
 
 ## 8. Quadrant-Based Decision Rules
 
-### Case 1 — Monolith in Front of Player
+### Case 1 — Monolith in Front of Player (180°)
 
 - Choose the **monolith tangent** on the *same side*
 - Choose the **exit tangent** on the *opposite side*
@@ -143,6 +132,7 @@ Example:
 This guarantees:
 - Maximum arc length
 - Clean visual wrap-around
+- And not in front of the player
 
 ---
 
@@ -154,8 +144,8 @@ This guarantees:
 - Cursor exit is **always opposite**
 
 This avoids:
-- Short, awkward half-arcs
-- Camera-space intrusion
+- Short, awkward half-arcs (less damage from passive)
+
 
 ---
 
@@ -166,12 +156,14 @@ To prevent oscillation and indecision:
 - Once a side is chosen:
   - It becomes **frozen** for the duration of the orbit
 - Recasts:
-  - Temporarily boost angular velocity
+  - Temporarily boost angular velocity (This adds a branch node)
   - Apply an arc-based lockout (not time-based)
 
 This ensures:
 - Responsiveness
 - No direction flipping mid-swing
+
+You can keep a monolith in orbit for a long time like a yo-yo.
 
 ---
 
@@ -191,20 +183,7 @@ Each state exists to:
 
 ---
 
-## 11. Damage Rules (Strict by Design)
-
-- **No contact damage**
-- **No orbit damage**
-- **All damage comes from Shockwave on landing**
-
-This reinforces:
-- Weight
-- Readability
-- Player trust in the system
-
----
-
-## 12. Debug Visualization (Design Tooling)
+## 11. Debug Visualization (Design Tooling)
 
 To validate the system, a full debug overlay was built:
 
@@ -221,7 +200,7 @@ This was essential for:
 
 ---
 
-## 13. Final Result
+## 12. Final Result
 
 - The monolith **always** travels around the player
 - Always chooses the **most powerful-looking arc**
