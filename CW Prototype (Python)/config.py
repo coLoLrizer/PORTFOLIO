@@ -60,10 +60,11 @@ CONF = {
         },
         'BOW': {
             'DMG_MIN': 5, 
-            'DMG_MAX': 25,
+            'DMG_MAX': 30,
             'CHARGE_TIME': 70,   
             'SPEED_PENALTY': 0.2,
-            'ARROW_SPEED': 25
+            'ARROW_SPEED': 25,
+            'CD': 15,
         }
     },
     
@@ -94,7 +95,7 @@ CONF = {
     'AUTO_BREW_TIME': 40,
     
     'SHOCKWAVE_STUN': 60,
-    'SHOCKWAVE_RANGE': 4.5,
+    'SHOCKWAVE_RANGE': 3.5,
     'THROW_TIMINGS': [2.5, 2.0, 1.5],
     
     'DMG_POISON': 6, 'DMG_FIRE': 1, 'DMG_HOLY': 25, 'DMG_BLOOD': 15, 'DMG_SHADOW': 5,

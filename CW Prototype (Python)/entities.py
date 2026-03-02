@@ -17,6 +17,78 @@ def to_world(sx, sy, cam_offset=(0,0)):
     cy = height // 2 + cam_offset[1]
     return (sx - cx) / TILE_SIZE, (sy - cy) / TILE_SIZE
 
+# --- VFX CLASSES ---
+class VisualEffect:
+    def __init__(self):
+        self.alive = True
+
+    def update(self):
+        pass
+
+    def draw(self, surface, cam_offset):
+        pass
+
+class ClawSlash(VisualEffect):
+    """Рисует 3 полосы (когти) и исчезает"""
+    def __init__(self, x, y, angle, radius=20):
+        super().__init__()
+        self.x, self.y = x, y
+        self.angle = angle
+        self.radius = radius
+        self.life = 10  # кадров жизни
+        self.max_life = 10
+
+    def update(self):
+        self.life -= 1
+        if self.life <= 0:
+            self.alive = False
+
+    def draw(self, surface, cam_offset):
+        sx, sy = to_screen(self.x, self.y, 10, cam_offset) # z=10
+        alpha = int(255 * (self.life / self.max_life))
+        
+        # Рисуем 3 линии веером
+        offsets = [-0.3, 0, 0.3] # Углы смещения в радианах
+        for off in offsets:
+            start_x = sx + math.cos(self.angle + off) * (self.radius * 0.5)
+            start_y = sy + math.sin(self.angle + off) * (self.radius * 0.5)
+            end_x = sx + math.cos(self.angle + off) * (self.radius * 1.5)
+            end_y = sy + math.sin(self.angle + off) * (self.radius * 1.5)
+            
+            color = (200, 200, 255, alpha) if alpha > 0 else (0,0,0,0)
+            # В Pygame alpha работает через Surface, но для линий можно схитрить цветом
+            # Для простоты рисуем белым/фиолетовым
+            pygame.draw.line(surface, (150, 50, 200), (start_x, start_y), (end_x, end_y), 2)
+
+class Shockwave(VisualEffect):
+    """Круговая волна, расширяется и исчезает"""
+    def __init__(self, x, y, max_radius, color=(255, 50, 50)):
+        super().__init__()
+        self.x, self.y = x, y
+        self.radius = 1
+        self.max_radius = max_radius
+        self.color = color
+        self.width = 5
+        self.alpha = 255
+        self.growth_speed = max_radius / 15 # Расширяемся за 15 кадров
+
+    def update(self):
+        self.radius += self.growth_speed
+        self.alpha -= (255 / 15)
+        if self.radius >= self.max_radius or self.alpha <= 0:
+            self.alive = False
+
+    def draw(self, surface, cam_offset):
+        sx, sy = to_screen(self.x, self.y, 0, cam_offset)
+        if self.alpha > 0:
+            # Рисуем "бублик"
+            current_color = (*self.color, int(self.alpha))
+            # Важно: pygame.draw.circle не поддерживает альфу напрямую, нужен surface
+            # Но для прототипа оставим так, или используем s.set_alpha()
+            temp_surf = pygame.Surface((int(self.radius*2.2), int(self.radius*2.2)), pygame.SRCALPHA)
+            pygame.draw.circle(temp_surf, (*self.color, int(self.alpha)), 
+                             (int(self.radius*1.1), int(self.radius*1.1)), int(self.radius), int(self.width))
+            surface.blit(temp_surf, (sx - self.radius*1.1, sy - self.radius*1.1))
 # ==========================================
 # --- ВИЗУАЛ УДАРА (SlashEffect) ---
 # ==========================================
@@ -230,6 +302,8 @@ class Player:
                 kb = cfg['KNOCKBACK']; boss.x += math.cos(ang) * kb; boss.y += math.sin(ang) * kb
 
     def fire_bow(self, game):
+        if self.attack_cd > 0: return  # Проверка кулдауна
+        
         mx, my = pygame.mouse.get_pos()
         px, py = to_screen(self.x, self.y)
         ang = math.atan2(my - py, mx - px)
@@ -251,6 +325,7 @@ class Player:
             spd / TILE_SIZE, 
             dmg
         ))
+        self.attack_cd = cfg['CD']  # Устанавливаем кулдаун
         game.add_shake(int(5 * p))
 
     def _check_melee_hit(self, boss, game, r, dmg):
@@ -414,87 +489,116 @@ class BloodSpike:
 class ShadowMinion:
     def __init__(self, x, y, px, py, aggressive=False):
         self.x, self.y = x, y
+        self.z = 0
         self.hp = CONF['SHADOW_MINION_HP']
         self.radius = 12
-        self.aggressive = aggressive
-        # Если Beast Fang активен: Скорость x1.7
-        self.speed = CONF['SHADOW_MINIONS_SPEED'] * (1.7 if aggressive else 1.0)
+        self.base_aggressive = aggressive 
+        self.is_enraged = aggressive 
+
         self.state = "FOLLOW"
         self.timer = 0
-        self.lunge_vx, self.lunge_vy = 0, 0
         
-        # Начальный толчок при спавне
-        dx, dy = self.x - px, self.y - py; dist = math.hypot(dx, dy)
-        if dist < 1.5: 
-            push = 2.0
-            self.x += (dx/dist if dist > 0 else 1) * push
-            self.y += (dy/dist if dist > 0 else 0) * push
+        # Вектор прыжка
+        self.vx, self.vy = 0, 0
+        
+        # Разлепляем их при спавне
+        dx, dy = self.x - px, self.y - py
+        dist = math.hypot(dx, dy)
+        if dist < 1.0:
+            self.x += random.uniform(-1, 1)
+            self.y += random.uniform(-1, 1)
 
     def update(self, player, game):
-        dx, dy = player.x - self.x, player.y - self.y
-        dist = math.hypot(dx, dy)
+        # 1. Проверка баффа босса (твоя база)
+        boss = getattr(game, 'boss', None)
+        boss_has_buff = False
+        if boss:
+            if hasattr(boss, 'altar') and (4 in boss.altar.materials): boss_has_buff = True
+            elif hasattr(boss, 'beast_fang_active') and boss.beast_fang_active: boss_has_buff = True
+        self.is_enraged = boss_has_buff or self.base_aggressive
+
+        dist = math.hypot(player.x - self.x, player.y - self.y)
+
+        # --- ЛОГИКА СОСТОЯНИЙ ---
         
         if self.state == "FOLLOW":
-            # Агрессивные лучше преследуют
-            if dist > 0.8:
-                self.x += (dx/dist) * self.speed
-                self.y += (dy/dist) * self.speed
-            else:
-                self.state = "PREPARE"
-                # Агрессивные атакуют почти мгновенно (12 кадров вместо 35)
-                self.timer = 20 if self.aggressive else 35
-                if self.aggressive:
-                    # Рассчитываем вектор резкого рывка (Lunge)
-                    self.lunge_vx = (dx/dist) * 0.18
-                    self.lunge_vy = (dy/dist) * 0.18
-        
-        elif self.state == "PREPARE":
-            self.timer -= 1
-            if self.aggressive:
-                # Скользим к игроку во время замаха (Рывок)
-                self.x += self.lunge_vx
-                self.y += self.lunge_vy
+            # Идем к игроку
+            speed = CONF['SHADOW_MINIONS_SPEED'] * (1.5 if self.is_enraged else 1.0)
+            if dist > 0.5:
+                self.x += (player.x - self.x) / dist * speed
+                self.y += (player.y - self.y) / dist * speed
             
+            # Если подошли на радиус прыжка (3.0)
+            if dist < 3.0:
+                self.state = "WINDUP"
+                self.timer = 10 if self.is_enraged else 15 # Замах
+
+        elif self.state == "WINDUP":
+            self.timer -= 1
             if self.timer <= 0:
-                # Увеличенный радиус попадания для агрессивных
-                hit_radius = 1.8 if self.aggressive else 1.6
-                if dist < hit_radius: 
-                    player.take_damage(CONF['DMG_SHADOW'], game)
-                    game.visual_effects.append(SlashEffect(self, 0, 15, (150, 0, 200), 360, 10, "HIT"))
+                self.state = "JUMP"
+                self.timer = 30 # Время полета
+                # Рассчитываем вектор прыжка в точку, где игрок СЕЙЧАС (небольшая доводка)
+                # Прыгаем чуть дальше игрока, чтобы "прошибать" позицию
+                jump_dist = dist + 0.5 
+                self.vx = (player.x - self.x) / self.timer
+                self.vy = (player.y - self.y) / self.timer
+
+        elif self.state == "JUMP":
+            self.timer -= 1
+            self.x += self.vx
+            self.y += self.vy
+            
+            # Парабола высоты Z
+            prog = 1 - (self.timer / 30)
+            self.z = 40 * 4 * prog * (1 - prog)
+
+            if self.timer <= 0:
+                # ПРИЗЕМЛЕНИЕ
+                self.z = 0
                 self.state = "COOLDOWN"
-                self.timer = 20 if self.aggressive else 45 
-        
+                self.timer = 40 # Отдых
+                
+                # Взрывная волна (Визуал)
+                wave_color = (200, 50, 50) if self.is_enraged else (130, 80, 200)
+                game.visual_effects.append(Shockwave(self.x, self.y, max_radius=2.5, color=wave_color))
+                
+                # Урон в радиусе 1.3
+                new_dist = math.hypot(player.x - self.x, player.y - self.y)
+                if new_dist < 1.3:
+                    player.take_damage(CONF['DMG_SHADOW'], game)
+
         elif self.state == "COOLDOWN":
             self.timer -= 1
-            if self.timer <= 0: self.state = "FOLLOW"
-        return self.hp > 0
+            if self.timer <= 0:
+                self.state = "FOLLOW"
+
+        return self.hp > 0 # Обязательно возвращаем статус жизни!
 
     def draw(self, surface, cam_offset):
-        sx, sy = to_screen(self.x, self.y, 0, cam_offset); px, py = to_screen(self.x, self.y, 10, cam_offset)
+        sx, sy = to_screen(self.x, self.y, 0, cam_offset)
+        px, py = to_screen(self.x, self.y, 10 + self.z, cam_offset)
         
-        # Цвет меняется если агрессивный
-        color = (100, 50, 150)
-        if self.aggressive: color = (100, 0, 0) # Темно-красный корпус
+        # Тень (уменьшается в прыжке)
+        s_size = max(5, 20 - self.z/4)
+        pygame.draw.ellipse(surface, (0, 0, 0, 60), (sx - s_size, sy - 5, s_size*2, 10))
+
+        # Цвет
+        color = (180, 20, 20) if self.is_enraged else (100, 60, 160)
         
-        z_bounce = 0
-        if self.state == "PREPARE":
-            if (pygame.time.get_ticks() // 100) % 2 == 0: color = (255, 50, 50)
-            z_bounce = math.sin(self.timer * 0.2) * 5
-            
-        pygame.draw.circle(surface, (0, 0, 0, 80), (sx, sy), self.radius, 2)
-        pygame.draw.circle(surface, color, (px, py - z_bounce), self.radius)
+        # Эффект замаха (белое мерцание)
+        if self.state == "WINDUP" and (self.timer // 4) % 2 == 0: 
+            color = (255, 255, 255)
+            # Рисуем круг-подсказку, куда бахнет
+            pygame.draw.circle(surface, (255, 0, 0, 50), (sx, sy), int(1.3 * TILE_SIZE), 1)
+
+        # Тело
+        pygame.draw.circle(surface, color, (px, py), self.radius)
         
-        # Глаза: Желтые если злые, Белые если обычные
-        eye_c = (255, 255, 255)
-        if self.aggressive: eye_c = (255, 200, 0)
-        if self.state == "PREPARE": eye_c = (255, 0, 0) # Красные при атаке
-        
-        pygame.draw.circle(surface, eye_c, (px - 4, py - 4 - z_bounce), 3)
-        pygame.draw.circle(surface, eye_c, (px + 4, py - 4 - z_bounce), 3)
-        if self.aggressive:
-             # Злые брови
-             pygame.draw.line(surface, (0,0,0), (px - 7, py - 8 - z_bounce), (px - 2, py - 5 - z_bounce), 1)
-             pygame.draw.line(surface, (0,0,0), (px + 7, py - 8 - z_bounce), (px + 2, py - 5 - z_bounce), 1)
+        # Глаза
+        e_col = (255, 255, 0) if self.is_enraged else (255, 255, 255)
+        pygame.draw.circle(surface, e_col, (px - 4, py - 4), 3)
+        pygame.draw.circle(surface, e_col, (px + 4, py - 4), 3)
 
 class PuddleBase:
     def __init__(self, x, y, radius, color, life):
@@ -557,20 +661,130 @@ class FirePuddle(PuddleBase):
         player.burn_timer = 180 
 
 class HolyPuddle:
-    def __init__(self, x, y, player): self.x, self.y, self.life, self.active = x, y, 180, False
+    def __init__(self, x, y, player): 
+        self.x, self.y = x, y
+        self.max_life = 240
+        self.life = self.max_life
+        self.active = False
+        
+        # Радиусы
+        self.outer_radius = 1.4 
+        self.inner_radius = 0.5 
+        
+        # [px, py, h, max_h, v_up, color, vx, vy]
+        self.particles = [] 
+
     def update(self, player, game):
         self.life -= 1
-        if self.life > 80:
-            dx, dy = player.x - self.x, player.y - self.y; d = math.hypot(dx, dy)
-            if d > 0.1: self.x += (dx/d) * 0.06; self.y += (dy/d) * 0.06
-        if self.life < 40:
+        
+        charge_duration = 150.0
+        progress = 1.0 - (max(0, self.life - (self.max_life - charge_duration)) / charge_duration)
+
+        # --- ДВИЖЕНИЕ ---
+        dx, dy = player.x - self.x, player.y - self.y
+        d = math.hypot(dx, dy)
+
+        if d > 0.1:
+            # Ювелирный контроль: чем больше заряд, тем медленнее лужа
+            heavy_factor = 1.0 - (progress * 0.9) 
+            current_speed = 0.08 * heavy_factor if not self.active else 0.005
+            self.x += (dx/d) * current_speed
+            self.y += (dy/d) * current_speed
+
+        # --- СОСТОЯНИЕ И УРОН ---
+        if progress >= 1.0 and not self.active:
             self.active = True
-            if math.hypot(player.x - self.x, player.y - self.y) < 1.5: player.take_damage(CONF['DMG_HOLY'], game)
+            
+        if self.active and self.life > 0:
+             if d < self.outer_radius: 
+                 player.take_damage(CONF['DMG_HOLY'], game)
+
+        # --- ЧАСТИЦЫ ---
+        self.spawn_particles(progress)
+        self.update_particles()
+
         return self.life > 0
-    def draw(self, s, cam):
-        p = to_screen(self.x, self.y, 0, cam); alpha = random.randint(150, 255) if (self.life < 80 and not self.active) else 100
-        surf = pygame.Surface((120, 120), pygame.SRCALPHA); pygame.draw.ellipse(surf, (255, 255, 200, alpha), (10, 35, 100, 50)); s.blit(surf, (p[0]-60, p[1]-60))
-        if self.active: sb = pygame.Surface((60, 800), pygame.SRCALPHA); pygame.draw.rect(sb, (255, 255, 200, 200), (10, 0, 40, 800)); s.blit(sb, (p[0]-30, p[1]-800+20))
+
+    def spawn_particles(self, progress):
+        # Существенно снижаем лимиты для производительности
+        if self.active:
+            outer_rate, inner_rate = 3, 5
+        else:
+            outer_rate, inner_rate = 1, int(1 + 2 * progress)
+
+        # Внешняя аура
+        for _ in range(outer_rate):
+            angle = random.uniform(0, 6.28)
+            dist = self.outer_radius
+            px = math.cos(angle) * dist
+            py = math.sin(angle) * dist * 0.5
+            
+            # Упрощаем выбор цвета и высоты
+            if self.active:
+                h, v_up = random.uniform(200, 400), random.uniform(10, 15)
+                col = (220, 240, 255)
+            else:
+                h, v_up = random.uniform(40, 100), random.uniform(3, 6)
+                col = (200, 255, 255)
+
+            swirl = 0.02
+            vx = -math.sin(angle) * swirl
+            vy = math.cos(angle) * swirl * 0.5
+            self.particles.append([px, py, 0, h, v_up, col, vx, vy])
+
+        # Внутреннее ядро
+        for _ in range(inner_rate):
+            angle = random.uniform(0, 6.28)
+            dist = self.inner_radius * progress
+            px = math.cos(angle) * dist
+            py = math.sin(angle) * dist * 0.5
+            
+            if self.active:
+                h, v_up = 600, random.uniform(20, 30)
+                col = (255, 255, 200)
+            else:
+                h, v_up = 30 + (70 * progress), random.uniform(2, 4)
+                col = (255, 215, 50)
+
+            swirl = 0.04 if self.active else 0.01
+            vx = -math.sin(angle) * swirl
+            vy = math.cos(angle) * swirl * 0.5
+            self.particles.append([px, py, 0, h, v_up, col, vx, vy])
+
+    def update_particles(self):
+        # Списковое включение работает быстрее обычного .remove()
+        self.particles = [p for p in self.particles if p[2] < p[3]]
+        for p in self.particles:
+            p[0] += p[6] # vx
+            p[1] += p[7] # vy
+            p[2] += p[4] # h += speed_up
+
+    def draw(self, surface, cam_offset):
+        sx, sy = to_screen(self.x, self.y, 0, cam_offset)
+        
+        # Вместо кучи мелких поверхностей используем одну для всей лужи (если нужна прозрачность)
+        # Но для макс. перфоманса рисуем прямо на surface
+        r_out_px = int(self.outer_radius * TILE_SIZE)
+        
+        # 1. Основание (статичные эллипсы — это быстро)
+        pygame.draw.ellipse(surface, (100, 200, 200), (sx - r_out_px, sy - r_out_px//2, r_out_px*2, r_out_px), 1)
+        
+        if self.active:
+            # Эффект вспышки при активации без создания Surface
+            pygame.draw.ellipse(surface, (255, 255, 200), (sx - r_out_px, sy - r_out_px//2, r_out_px*2, r_out_px), 2)
+        
+        # 2. Отрисовка частиц
+        # Мы убрали создание Surface внутри этого цикла — это ключевой буст.
+        for p in self.particles:
+            px, py, h, max_h, _, col, _, _ = p
+            
+            screen_x = sx + int(px * TILE_SIZE)
+            screen_y = sy + int(py * TILE_SIZE)
+            
+            # Вместо прозрачности используем укорачивание линии к концу жизни или просто рисуем
+            # В Pygame draw.line без Surface не поддерживает Alpha. 
+            # Чтобы не терять FPS, рисуем обычную линию.
+            pygame.draw.line(surface, col, (screen_x, screen_y - int(h * 0.1)), (screen_x, screen_y - int(h)), 1)
 
 class Potion:
     def __init__(self, sx, sy, tx, ty, pt):

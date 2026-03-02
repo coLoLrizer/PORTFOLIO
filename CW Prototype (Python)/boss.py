@@ -177,8 +177,8 @@ class Boss:
         flight_time = dist_to_player / 0.25
         wanted_x = player.x + player.vx * flight_time * 0.6
         wanted_y = player.y + player.vy * flight_time * 0.6
-        self.aim_x += (wanted_x - self.aim_x) * 0.05
-        self.aim_y += (wanted_y - self.aim_y) * 0.05
+        self.aim_x += (wanted_x - self.aim_x) * 0.40 # Плавное приближение к цели
+        self.aim_y += (wanted_y - self.aim_y) * 0.40 # Плавное приближение к цели
 
         # 2. Обновление таймеров
         for attr in ['flash_timer', 'blink_cd', 'combo_cd', 'poison_skin', 'holy_shield', 'assassin_timer']:
@@ -198,7 +198,8 @@ class Boss:
             self.handle_combo_attack(player, game, dist, dx, dy)
         else:
             if dist < CONF['COMBO_RANGE']: self.combo_nearby_timer += 1
-            else: self.combo_nearby_timer = 0
+            else: 
+                self.combo_nearby_timer = max(0, self.combo_nearby_timer - 2) # Быстро спадает, если отойти от босса
             
             # Условия старта комбо: игрок рядом + прошло время + нет КД
             can_melee = (self.combo_nearby_timer >= CONF['COMBO_NEARBY_TIME'] and self.combo_cd <= 0)
@@ -431,6 +432,7 @@ class Boss:
             self.assassin_timer = 180 # 3 секунды на атаку
             self.shadow_invis = 180   # Полная невидимость
             self.has_attacked_in_shadow = False # Флаг: удар еще не нанесен
+            self.combo_cd = 0  # Сброс КД комбо
             game.add_floater(self.x, self.y, "ASSASSIN", (150, 0, 200))
 
         elif p == "FIRE": self.fire_buff_stack = 3; game.add_floater(self.x, self.y, "FIRE POWER!", (255, 100, 0))
@@ -461,25 +463,41 @@ class Boss:
             "POISON": (50, 255, 50), "FIRE": (255, 100, 0), "HEALING": (255, 50, 150),
             "SHADOW": (150, 100, 200), "BLOOD": (200, 0, 0), "HOLY": (255, 255, 200)
         }
-        if self.blink_state == "VOID": return # Не рисуем, пока она в пустоте
+        
+        # Если в пустоте — не рисуем вообще
+        if self.blink_state == "VOID": return
 
-        # Применяем масштаб
+        # Масштаб для анимации блинка
         current_radius = int(self.radius * self.visual_radius_scale)
         if current_radius <= 0: return
 
-        sx, sy = to_screen(self.x, self.y, 40, cam_offset)
-        
-        # Твой код рисования круга, но используй current_radius вместо self.radius
-        pygame.draw.circle(surface, (50, 0, 50), (sx, sy), current_radius) # Тело
-        # Аура (кожа)
+        # 1. ТЕЛО БОССА (Рисуем один раз здесь)
+        col = (220, 50, 50) if self.assassin_timer <= 0 else (80, 0, 80)
+        pygame.draw.circle(surface, col, (sx, sy), current_radius)
+
+        # 2. АУРЫ (Кожа)
         if self.poison_skin > 0:
             for i in range(8):
                 ang = (pygame.time.get_ticks() * 0.005) + (i * math.pi / 4)
                 pygame.draw.circle(surface, (50, 255, 50), (int(sx + math.cos(ang)*38), int(sy + math.sin(ang)*38)), 4)
-        if self.holy_shield > 0: pygame.draw.circle(surface, (255, 255, 200), (sx, sy), self.radius + 6, 2)
         
+        if self.holy_shield > 0: 
+            pygame.draw.circle(surface, (255, 255, 200), (sx, sy), self.radius + 6, 2)
+        
+        # 3. [ВЕРНУЛ] ОГНЕННЫЙ БАФФ
+        if self.fire_buff_stack > 0:
+            pulse = math.sin(pygame.time.get_ticks() * 0.01) * 3
+            # Кольцо
+            pygame.draw.circle(surface, (255, 140, 0), (sx, sy), int(current_radius + 10 + pulse), 3)
+            # Шарики стаков над головой
+            for i in range(self.fire_buff_stack):
+                ang = -math.pi/2 + (i - 1) * 0.5 
+                fx = sx + math.cos(ang) * (current_radius + 20)
+                fy = sy + math.sin(ang) * (current_radius + 20)
+                pygame.draw.circle(surface, (255, 50, 0), (int(fx), int(fy)), 6)
+                pygame.draw.circle(surface, (255, 200, 0), (int(fx), int(fy)), 3)
 
-        # Индикатор варки (Шоквейв)
+        # 4. ИНДИКАТОР ВАРКИ
         if self.brewing_windup > 0:
             prog = 1.0 - (self.brewing_windup / 60.0); rs = CONF['SHOCKWAVE_RANGE'] * TILE_SIZE
             pygame.draw.circle(surface, (255, 255, 255), (sx, sy), int(rs * (1.0 - prog)), 2)
@@ -488,60 +506,50 @@ class Boss:
             pygame.draw.circle(w_surf, (255, 200, 0, alpha), (rs, rs), int(rs * 0.8))
             surface.blit(w_surf, (sx - rs, sy - rs))
 
-        # Телеграф броска
+        # 5. ТЕЛЕГРАФ БРОСКА
         if self.telegraph_active:
-            c = color_map.get(self.brewed_potions[self.selected_potion_index], (255,255,255)) if self.selected_potion_index != -1 else (255,255,255)
+            if self.selected_potion_index != -1 and self.selected_potion_index < len(self.brewed_potions):
+                 c = color_map.get(self.brewed_potions[self.selected_potion_index], (255,255,255))
+            else: c = (255,255,255)
             pygame.draw.circle(surface, c, (sx, sy), self.radius + 15, 2)
             if self.throw_timer > 0:
-                ax, ay = to_screen(self.aim_x, self.aim_y, 0, cam_offset); pygame.draw.line(surface, c, (sx, sy), (ax, ay), 1)
+                ax, ay = to_screen(self.aim_x, self.aim_y, 0, cam_offset)
+                pygame.draw.line(surface, c, (sx, sy), (ax, ay), 1)
 
-        # Радиус комбо (предупреждение)
+        # 6. РАДИУС КОМБО (Только граница)
         if self.combo_nearby_timer > 0 and not self.combo_active:
             r = int(CONF['COMBO_RANGE'] * TILE_SIZE)
-            pygame.draw.circle(surface, (100, 50, 0), (sx, sy), r, 1)
-        
-        # Сначала определяем актуальные тайминги для текущего шага, как в update
-        c_windup = CONF['COMBO_WINDUP']
-        c_hit = CONF['COMBO_HIT_DURATION']
-        c_rec = CONF['COMBO_RECOVERY']
-
-        if self.combo_step == 2: # Медленный финишер
-            w = c_windup * 2.0
-            h = c_hit * 1.0
-            rec = c_rec * 1.5
-        else: # Быстрые удары
-            w = c_windup * 0.7
-            h = c_hit
-            rec = c_rec * 0.5
-
-        # Теперь используем w, h, rec вместо старых CONF
-        if self.combo_active and self.combo_timer > (h + rec):
-            # Считаем прогресс (защита от деления на ноль)
-            if w > 0:
-                prog = 1.0 - (self.combo_timer - (h + rec)) / w
-            else:
-                prog = 1.0
             
-            prog = max(0.0, min(1.0, prog)) 
+            # Рисуем просто тонкую оранжевую линию (границу зоны)
+            # Толщина 1 пиксель, без всяких "заполнений"
+            pygame.draw.circle(surface, (150, 50, 0), (sx, sy), r, 1)
 
-            r = int(CONF['COMBO_RANGE'] * TILE_SIZE * prog)
-            if r > 1:
-                s = pygame.Surface((r*2+2, r*2+2), pygame.SRCALPHA)
-                pygame.draw.circle(s, (255, 0, 0, 80), (r, r), r)
-                surface.blit(s, (sx - r, sy - r))
-                
-                # Полоска зарядки (тоже используем корректный prog)
-                bar_w = 60
-                pygame.draw.rect(surface, (50, 0, 0), (sx - bar_w//2, sy - 65, bar_w, 4)) 
-                pygame.draw.rect(surface, (255, 255, 0), (sx - bar_w//2, sy - 65, int(bar_w * prog), 4))
+        # 7. ОТРИСОВКА УДАРА (Рывок)
+        if self.combo_active:
+             c_windup = CONF['COMBO_WINDUP']; c_hit = CONF['COMBO_HIT_DURATION']; c_rec = CONF['COMBO_RECOVERY']
+             if self.combo_step == 2: w, h, rec = c_windup * 2.0, c_hit * 1.0, c_rec * 1.5
+             else: w, h, rec = c_windup * 0.7, c_hit, c_rec * 0.5
+
+             if self.combo_timer > (h + rec):
+                 if w > 0: prog = 1.0 - (self.combo_timer - (h + rec)) / w
+                 else: prog = 1.0
+                 prog = max(0.0, min(1.0, prog)) 
+                 r = int(CONF['COMBO_RANGE'] * TILE_SIZE * prog)
+                 if r > 1:
+                     s = pygame.Surface((r*2+2, r*2+2), pygame.SRCALPHA)
+                     pygame.draw.circle(s, (255, 0, 0, 80), (r, r), r)
+                     surface.blit(s, (sx - r, sy - r))
+                     bar_w = 60
+                     pygame.draw.rect(surface, (50, 0, 0), (sx - bar_w//2, sy - 65, bar_w, 4)) 
+                     pygame.draw.rect(surface, (255, 255, 0), (sx - bar_w//2, sy - 65, int(bar_w * prog), 4))
         
-        # Котел варки
+        # 8. КОТЕЛ ВАРКИ
         if self.brewing_active:
             cr = int(3.0 * TILE_SIZE); cs = pygame.Surface((cr*2, cr*2), pygame.SRCALPHA)
             pygame.draw.circle(cs, (255, 165, 0, 60), (cr, cr), int(cr * self.brewing_progress))
             pygame.draw.circle(cs, (255, 140, 0, 180), (cr, cr), cr, 2); surface.blit(cs, (sx-cr, sy-cr))
 
-        # Зелья в инвентаре
+        # 9. ЗЕЛЬЯ (Инвентарь)
         for i, p in enumerate(self.brewed_potions):
             oy = -60 - (i * 15); c = color_map.get(p, (200,200,200))
             if i == self.selected_potion_index:
@@ -549,7 +557,5 @@ class Boss:
                 pygame.draw.circle(surface, (255, 255, 255), (sx + 40, sy + oy), 8 + pulse, 2)
             pygame.draw.circle(surface, c, (sx + 40, sy + oy), 6)
             
-        # Тело босса
-        col = (220, 50, 50) if self.assassin_timer <= 0 else (80, 0, 80)
-        pygame.draw.circle(surface, col, (sx, sy), self.radius)
+        # 10. HP БАР
         pygame.draw.rect(surface, (255,0,0), (sx - 30, sy - 50, 60 * (self.hp/self.max_hp), 6))
