@@ -165,6 +165,14 @@ This ensures:
 
 You can keep a monolith in orbit for a long time like a yo-yo.
 
+### Charged State
+
+Recasting while the monolith is already in orbit activates a **charged state**.
+
+While charged, the monolith deals **contact damage** to any enemy within range during flight — turning a repositioning input into an aggressive offensive tool.
+
+The charge is consumed on landing.
+
 ---
 
 ## 10. States Overview
@@ -197,10 +205,39 @@ This was essential for:
 - Tuning
 - Teaching the system to designers
 - Proving correctness
+  
+---
+
+## 13. Risk/Reward: Tether Economy
+
+The ability's math is directly tied to combat economy and player positioning.
+
+### Kinetic Scaling
+
+Damage on landing is not static. A multiplier is calculated from distance traveled (capped at 20 blocks):
+
+```
+1.0 + (0.0015 × traveled_blocks × mass)
+```
+
+The longer the monolith stays in continuous flight — orbiting, recasting, staying airborne — the more devastating the impact. Letting it hit the ground early is always the weaker choice.
+
+### Tether Range & The Yank
+
+The monolith has a **hard throw cap of 12 blocks**.  
+Casting beyond that limit doesn't cancel the throw — it snaps the tether taut and **pulls the player toward the impact point** with a strong velocity impulse.
+
+This transforms what looks like a positioning mistake into an **aggressive gap-closer**, rewarding players who throw past enemies intentionally.
+
+### Tether Stress
+
+Walking too far from a grounded monolith (**20 blocks**) violently snaps the tether. The chain visually shifts color near its breaking point — giving the player a readable warning before losing the stone entirely.
+
+This forces constant spatial awareness: the monolith is a commitment, not a passive tool.
 
 ---
 
-## 12. Final Result
+## 13. Final Result
 
 - The monolith **always** travels around the player
 - Always chooses the **most powerful-looking arc**
@@ -209,8 +246,6 @@ This was essential for:
 - Supports aggressive recasting without chaos
 
 What began as a control problem became a **geometry-driven design system**.
-
----
 
 ## 14. Key Takeaway
 
