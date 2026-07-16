@@ -27,8 +27,8 @@ The theme brief from the organizers explicitly named this angle as valid ("*Mayb
 
 ## Design & Technical Breakdown
 
-### Movement (WASD + Dash)
-Construct's native keyboard input didn't behave reliably across keyboard layouts (broke on non-US layouts). Solved by intercepting raw browser `keydown`/`keyup` events directly and driving movement through the Move behavior's `vectorX/vectorY` in JS — reducing what would have been 4+ native events into a single JS block, which also solved the free-tier event budget problem.
+### Movement (WASD move +  SHIFT dash)
+Construct’s built-in keyboard input mechanism did not work with the WASD keys for control. The issue was resolved by directly intercepting the browser’s raw `keydown`/ `keyup` events and controlling movement using the `vectorX/vectorY` properties of the ‘Move’ behaviour in JavaScript — in this way, the number of events, which would otherwise have been four or more, was reduced to a single block of JavaScript code, which also resolved the event limit issue in the free version. (Looking back, I wish I’d just used those four events lol)
 
 Dash was implemented as a temporary `maxSpeed` spike (1500) held for 0.12s on a 0.5s cooldown, using the stored input vector at the moment of activation.
 
