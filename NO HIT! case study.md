@@ -83,30 +83,85 @@ A 7-second scripted text sequence sets up the fiction before the fight starts: *
 
 ### Phase 1
 
-| # | Attack | Core Mechanic | Read / Counterplay |
-|---|---|---|---|
-| 1 | **Rush** | 3 dashes toward the player; each lands and spawns 8 claws radiating outward in a rotating ring (22.5° offset per rush so gaps don't overlap) | Stand in the gaps between claws |
-| 2 | **Laser Fan** | 5 fixed beams + 1 predictive beam that locks onto the player 0.2s before firing, across 4 volleys | Avoid the predictive beam's line, weave through the fixed fan's gaps |
-| 3 | **Giant Laser** | One wide beam does a full 360° rotation over 1 second; rotation direction is chosen based on the player's current movement vector (cross product) | Outrun the beam's rotation speed |
-| 4 | **Rapid Telegraphs** | 8 warning lines spawn simultaneously from screen edges, aimed at a predicted player position, across 3 waves | Find the one safe pocket where lines don't intersect |
-| 5 | **Charge** | Boss exits off-screen left, tracks the player's Y, then charges across with eased acceleration, dropping projectiles in a checkerboard pattern along the way — repeats 3 times | Stay off the charge's vertical line |
+**1. Rush**  
+<img width="684" height="381" alt="attack1" src="https://github.com/user-attachments/assets/85552d0e-d984-4b72-8950-f5ffdc5918d5" />  
+3 dashes toward the player; each lands and spawns 8 claws radiating outward in a rotating ring (22.5° offset per rush so gaps don't overlap).  
+*Read / Counterplay:* Stand in the gaps between claws.
+
+---
+
+**2. Laser Fan**  
+<img width="684" height="381" alt="attack2" src="https://github.com/user-attachments/assets/e27c954c-8177-4fe9-9a54-22fafe379e7a" />  
+5 fixed beams + 1 predictive beam that locks onto the player 0.2s before firing, across 4 volleys.  
+*Read / Counterplay:* Avoid the predictive beam's line, weave through the fixed fan's gaps.
+
+---
+
+**3. Giant Laser**  
+<img width="684" height="381" alt="attack3" src="https://github.com/user-attachments/assets/c18c6159-b79c-4f45-8fc2-55ff93eb9927" />  
+One wide beam does a full 360° rotation over 1 second; rotation direction is chosen based on the player's current movement vector (cross product).  
+*Read / Counterplay:* Outrun the beam's rotation speed.
+
+---
+
+**4. Rapid Telegraphs**  
+<img width="684" height="381" alt="attack4" src="https://github.com/user-attachments/assets/30d9ac5b-01a9-4967-9976-cbb1cdf88c97" />  
+8 warning lines spawn simultaneously from screen edges, aimed at a predicted player position, across 3 waves.  
+*Read / Counterplay:* Find the one safe pocket where lines don't intersect.
+
+---
+
+**5. Charge**  
+<img width="684" height="381" alt="attack5" src="https://github.com/user-attachments/assets/861d7381-69df-4b48-ab1d-e0a8e2774e2d" />  
+Boss exits off-screen left, tracks the player's Y, then charges across with eased acceleration, dropping projectiles in a checkerboard pattern along the way — repeats 3 times.  
+*Read / Counterplay:* Stay off the charge's vertical line.
+
+---
 
 ### Phase Transition
+
 After 2 full attack cycles, the boss flashes, pulses, and shakes for 1.5 seconds before escalating into phase 2 — a clear, unmissable beat that tells the player "it gets worse now."
 
-### Phase 2
-Every phase 1 attack returns, restructured and layered with additional mechanics:
+---
 
-| # | Attack | What Changed |
-|---|---|---|
-| 1 | **Rush** | 5 dashes instead of 3; each spawns *two* claw rings (inner + outer, different speeds) instead of one; ends in a delayed expanding explosion the player has to outrun after weaving the rings |
-| 2 | **Laser Fan + Shrapnel** | 6 volleys instead of 4; a 20-projectile radial burst fires simultaneously with the laser fan, forcing the player to track two attack types at once |
-| 3 | **Twin Giant Lasers** | Two opposing beams instead of one, rotating slowly over 3 full rotations, each firing an 8-projectile volley every 22.5° of rotation |
-| 4 | **Rapid Telegraphs (Top-Only)** | 24 lasers instead of 8, all from the top edge, fired individually at 0.15s intervals — trades spatial complexity for pure tempo pressure |
-| 5 | **Charge + Reverse Fan + Wall** | The charge now triggers a full laser fan back toward its origin point on arrival, with only a ±12° safe corridor, while projectiles simultaneously approach from the opposite edge like an advancing wall |
+### Phase 2
+
+Every phase 1 attack returns much stronger mechanics:
+
+---
+
+**1. Rush**  
+<img width="684" height="381" alt="attack11" src="https://github.com/user-attachments/assets/d96a060e-87b5-4a13-91e2-1fc1e3e0926f" />  
+5 dashes instead of 3; each spawns *two* claw rings (inner + outer, different speeds) instead of one; ends in a delayed expanding explosion the player has to outrun after weaving the rings.
+
+---
+
+**2. Laser Fan + Shrapnel**  
+<img width="684" height="381" alt="attack21" src="https://github.com/user-attachments/assets/d65187c0-bb4f-4c28-b140-26f81be0e55d" />  
+6 volleys instead of 4; a 20-projectile radial burst fires simultaneously with the laser fan, forcing the player to track two attack types at once.
+
+---
+
+**3. Twin Giant Lasers**  
+<img width="684" height="381" alt="attack31" src="https://github.com/user-attachments/assets/28e945f6-df0f-4ca4-9cd1-35c6ff161a87" />  
+Two opposing beams instead of one, rotating slowly over 3 full rotations, each firing an 8-projectile volley every 22.5° of rotation.
+
+---
+
+**4. Rapid Telegraphs (Top-Only)**  
+<img width="684" height="381" alt="attack41" src="https://github.com/user-attachments/assets/e33ace65-f15d-4511-846b-6b6c18a21d81" />  
+24 lasers instead of 8, all from the top edge, fired individually at 0.15s intervals — trades spatial complexity for pure tempo pressure.
+
+---
+
+**5. Charge + Reverse Fan + Wall**  
+<img width="684" height="381" alt="attack51" src="https://github.com/user-attachments/assets/a3c239b0-98ec-41fb-886b-94e926da9203" />  
+The charge now triggers a full laser fan back toward its origin point on arrival, with only a ±12° safe corridor, while projectiles simultaneously approach from the opposite edge like an advancing wall.
 
 ### Victory & Death
 Clearing all of phase 2 fades the screen to a "VICTORY!" state before resetting. Dying resets the player and clears all boss state — except after **25 deaths**, where a scripted "GET OUT!" sequence triggers instead (see *Design Decision: The Crash* below).
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/84574e08-872d-485a-bc13-c299d768b917" />
+
 
 ### Design Notes
 - Every attack uses **predictive aiming** rather than aiming at the player's current position — consistent with the "boss plays like a cautious player" pillar carried over from the Crimson Witch design.
