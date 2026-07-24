@@ -15,7 +15,7 @@ I joined the team through the CurseForge Discord as a Game Designer. The project
 
 My role was designing the core gameplay loop, systems, progression, encounters, and maintaining design consistency through documentation and design pillars.
 
-This postmortem is not about presenting the project as a success story. The final build differed significantly from the original (my) design. The goal is to analyze why that happened, what I did well, where I made mistakes, and what I learned from the process.
+This postmortem is not about presenting the project as a success story. The final build differed significantly from the original design. The goal is to analyze why that happened, what I did well, where I made mistakes, and what I learned from the process.
 
 ---
 
@@ -210,58 +210,66 @@ The Crimson infection was not just a visual theme — it influenced:
 
 # 6. Lessons Learned
 
-## Define roles before ideas
+## A design document does not create alignment
 
-A team needs clear ownership before production starts.
+The biggest lesson from this project was that documentation alone does not solve communication problems.
 
-Without someone responsible for scope decisions, ambition naturally grows faster than resources.
+I created a detailed GDD and design pillars, but without a process where the team regularly checked decisions against them, the documents became references rather than active production tools.
 
----
-
-## "No" is a design tool
-
-Small teams need someone who can reject ideas.
-
-Not because ideas are bad, but because every addition has a cost.
+For future projects, I would establish:
+- Regular design reviews.
+- A clear place where final decisions are recorded.
+- A process for evaluating new ideas against the project's goals and constraints.
 
 ---
 
-## Pillars are a process, not a document
+## Vision needs ownership
 
-A design pillar only works when it actively influences decisions.
+A shared vision is not enough. Someone needs the responsibility and authority to protect it.
 
-Writing it down is the beginning, not the solution.
+During Blightfall, I often acted as a scope and consistency filter, trying to keep new ideas aligned with the intended experience. However, without formal ownership over final decisions, this approach had limited effectiveness.
 
----
-
-## Validate scope early
-
-Before accepting a feature, ask:
-
-> Can this realistically be implemented within our current constraints?
-
-If the answer is unclear, it belongs in a future backlog.
+Small teams do not necessarily need a strict hierarchy, but they do need someone who can make final calls when scope and direction are unclear.
 
 ---
 
-## Communication matters more than documentation
+## Scope control is a design skill
 
-A perfect GDD cannot replace regular synchronization.
+One of the most important lessons was that a good idea is not automatically a good idea for the current project.
 
-The team needs shared understanding, not just shared files.
+A feature should be evaluated not only by its gameplay value, but also by:
+
+- Development cost.
+- Technical risk.
+- Integration complexity.
+- Testing requirements.
+
+A smaller system that is fully implemented and polished is often more valuable than a larger system that exists only as a concept.
 
 ---
 
-# 7. Final Thoughts
+## Lore should support gameplay
 
-Blightfall did not become the game we originally designed.
+The project showed me that narrative scale needs to match gameplay scale.
 
-However, the project gave me experience that is difficult to gain outside real development:
+A survival-focused game about a character exploring a dangerous world creates a different experience from a story about confronting divine-level threats.
 
-- Seeing how projects lose direction.
-- Understanding the importance of scope control.
-- Learning the difference between having a vision and maintaining alignment.
-- Experiencing the role of a designer inside a team, not just designing mechanics in isolation.
+Lore is not only background information — it defines the player's expectations, the scale of conflict, and what gameplay feels believable.
+
+---
+
+## The designer's job is not only creating ideas
+
+The biggest personal takeaway was that game design is not only about generating mechanics and concepts.
+
+A designer also has to:
+
+- Remove ideas that do not support the core experience.
+- Protect the project's direction.
+- Communicate constraints clearly.
+- Balance creative ambition with production reality.
+
+Knowing when to say "this does not belong in this project" is just as important as creating something new.
 
 ---
 
