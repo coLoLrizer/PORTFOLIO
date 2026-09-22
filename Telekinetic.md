@@ -1,4 +1,4 @@
-# Telekinetic — Class Design & Systems Architecture
+# WIP Telekinetic — Class Design & Systems Architecture
 
 **Role:** Systems Designer / Combat Designer  
 **Project:** Wynncraft (Custom Class Concept)  
