@@ -15,7 +15,7 @@ The Telekinetic class has three archetypes: **Mind Breaker**, **Elementalist** a
 ### Orbital Strike (showcase)
 **Click combo:** LEFT-RIGHT-RIGHT · **Mana:** 35 · **Slot:** heavy attack spell
 
-![Orbital Strike](https://github.com/user-attachments/assets/5277f74f-945a-4840-9ce1-9264b7b70d84)
+<img width="429" height="295" alt="image" src="https://github.com/user-attachments/assets/9a70ee28-51f8-4a19-bf90-4c36e70db329" />
 
 Summons 3 stones from beneath the ground. After a 1.5s preparation delay, each stone launches toward the nearest enemy, firing one by one every 1s. Each stone deals 100% of your DPS (70% Damage, 20% Earth, 10% Fire) at a range of 16 blocks.
 
@@ -30,27 +30,19 @@ This is your attack spell. You would start the game with it.
 ### Cheaper Orbital Strike I
 Ability points: 1
 
-![Cheaper Orbital Strike I](./media/cheaper-orbital-strike-1.png)
+<img width="362" height="132" alt="image" src="https://github.com/user-attachments/assets/2ececcd7-2113-4fcb-885a-054f2377e376" />
 
 Reduces the mana cost of Orbital Strike by 10 (35 → 25).
 
 ### Mind Proficiency I
 Ability points: 1
 
-![Mind Proficiency I](./media/mind-proficiency-1.png)
+<img width="271" height="113" alt="image" src="https://github.com/user-attachments/assets/9932f859-c8e9-462d-a374-087a17d9cca8" />
 
 Increases your Sprint and Main Attack's damage by 5%.
 
-### Awareness
-Ability points: 1
-
-![Awareness](./media/awareness.png)
-
-Spell cost escalation begins after the 3rd repeated cast instead of the 2nd.
 
 ## Page 2 (branches)
-
-### Branch A: Forcing / Telekinesis / Discharge Thinking
 
 #### Forcing 🚧 WIP
 
@@ -62,8 +54,6 @@ Spell cost escalation begins after the 3rd repeated cast instead of the 2nd.
 
 <img width="430" height="171" alt="image" src="https://github.com/user-attachments/assets/767c0359-d679-48d8-a8fb-e1ba52fe9969" />
 
-
-
 A movement spell: you keep floating in the direction of movement, then jump in the direction of your gaze.
 
 <!-- TODO: GIF -->
@@ -71,16 +61,14 @@ A movement spell: you keep floating in the direction of movement, then jump in t
 #### Discharge Thinking
 **Mind Breaker Archetype** · Ability points: 1
 
-![Discharge Thinking](./media/discharge-thinking.png)
+<img width="461" height="238" alt="image" src="https://github.com/user-attachments/assets/0a15f854-5aa9-4ccc-a6fc-05edd1187711" />
 
 Increases your move speed by 1% per 1% Sprint gained from your equipment (max +10%), plus a flat +5% move speed. Unlocking it blocks the **Forcing** node.
-
-### Branch B: Barrier / Telekinesis cost / Magnetism
 
 #### Barrier
 **Click combo:** LEFT-LEFT-RIGHT · **Mana:** 25 · **Slot:** support spell
 
-![Barrier](./media/barrier.png)
+<img width="400" height="280" alt="image" src="https://github.com/user-attachments/assets/b0ecb0a5-008b-4719-9020-39782144a1b7" />
 
 After a 1s delay, a barrier crashes down onto your position and decays 1% every second. Deals 80% of your DPS (60% Damage, 10% Water, 10% Fire) in a 5-block circle and gives a barrier worth 15% of max HP.
 
@@ -89,20 +77,27 @@ After a 1s delay, a barrier crashes down onto your position and decays 1% every 
 #### Cheaper Telekinesis I
 **Required ability:** Telekinesis · Ability points: 1
 
-![Cheaper Telekinesis I](./media/cheaper-telekinesis-1.png)
+<img width="344" height="149" alt="image" src="https://github.com/user-attachments/assets/92d23631-8449-4c1a-9c0b-70a5dd7a7144" />
 
 Reduces the mana cost of Telekinesis by 5 (20 → 15).
 
 #### Magnetism
 **Click combo:** LEFT-RIGHT-LEFT · **Mana:** 30 · **Slot:** light attack spell
 
-![Magnetism](./media/magnetism.png)
+<img width="559" height="243" alt="image" src="https://github.com/user-attachments/assets/fcddbe8e-f114-447d-bc9d-51995f5a14b4" />
 
 Releases a slow telekinetic shockwave that expands outward and damages every enemy it touches. Deals 110% of your DPS (70% Damage, 30% Thunder, 10% Air) in an 18-block sphere.
 
 <!-- TODO: GIF -->
 
 ---
+
+### Awareness
+Ability points: 1
+
+<img width="369" height="116" alt="image" src="https://github.com/user-attachments/assets/5bdf0070-ef4b-48a5-9598-4c8a96274a34" />
+
+Spell cost escalation begins after the 3rd repeated cast instead of the 2nd.
 
 # Part 2 — Archetypes 🚧 WIP
 
