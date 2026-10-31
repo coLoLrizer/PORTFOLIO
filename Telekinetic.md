@@ -15,7 +15,7 @@ The Telekinetic class has three archetypes: **Mind Breaker**, **Elementalist** a
 ### Orbital Strike (showcase)
 **Click combo:** LEFT-RIGHT-RIGHT · **Mana:** 35 · **Slot:** heavy attack spell
 
-![Orbital Strike](./media/orbital-strike.png)
+![Orbital Strike](https://github.com/user-attachments/assets/5277f74f-945a-4840-9ce1-9264b7b70d84)
 
 Summons 3 stones from beneath the ground. After a 1.5s preparation delay, each stone launches toward the nearest enemy, firing one by one every 1s. Each stone deals 100% of your DPS (70% Damage, 20% Earth, 10% Fire) at a range of 16 blocks.
 
@@ -60,7 +60,9 @@ Spell cost escalation begins after the 3rd repeated cast instead of the 2nd.
 #### Telekinesis
 **Click combo:** LEFT-LEFT-LEFT · **Mana:** 20 · **Slot:** movement spell
 
-![Telekinesis](./media/telekinesis.png)
+<img width="430" height="171" alt="image" src="https://github.com/user-attachments/assets/767c0359-d679-48d8-a8fb-e1ba52fe9969" />
+
+
 
 A movement spell: you keep floating in the direction of movement, then jump in the direction of your gaze.
 
